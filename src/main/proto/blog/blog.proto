@@ -31,24 +31,26 @@ message ReadBlogResponse {
     Blog blog = 1;
 }
 
-message UpdateblogRequest {
-
+message UpdateBlogRequest {
+    Blog blog = 1;
 }
 
-message UpdateblogResponse {
-
+message UpdateBlogResponse {
+    Blog blog = 1;
 }
 
 service BlogService {
     // Create a Blog by passing Blog message
-    rpc CreateBlog (CreateBlogRequest) returns (CreateBlogResponse) {};
+    rpc CreateBlog (CreateBlogRequest) returns (CreateBlogResponse) {
+    };
 
     // Read blog using Id and get Blog object as response and return NOTFOUND if blog with that id is not found in DB
     rpc ReadBlog (ReadBlogRequest) returns (ReadBlogResponse) {
     };
 
     // Update blog
-    rpc Updateblog (UpdateblogRequest) returns (UpdateblogResponse) {
+    rpc UpdateBlog (UpdateBlogRequest) returns (UpdateBlogResponse) {
     };
+
 
 }

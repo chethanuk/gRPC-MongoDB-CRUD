@@ -97,12 +97,7 @@ public class BlogServiceImpl extends BlogServiceGrpc.BlogServiceImplBase {
         } else {
             // Document is found
             System.out.println("Blog is found");
-            Blog blog = Blog.newBuilder()
-                    .setTitle(document.getString("title"))
-                    .setAuthorId(document.getString("authorId"))
-//                    .setId(document.getObjectId(""))
-                    .setContent(document.getString("content"))
-                    .build();
+            Blog blog = documentToBlog(document);
 
             responseObserver.onNext(
                     ReadBlogResponse.newBuilder()
@@ -113,6 +108,72 @@ public class BlogServiceImpl extends BlogServiceGrpc.BlogServiceImplBase {
             responseObserver.onCompleted();
             System.out.println("Server done");
         }
+
+    }
+
+    private Blog documentToBlog(Document document) {
+        return Blog.newBuilder()
+                .setTitle(document.getString("title"))
+                .setAuthorId(document.getString("authorId"))
+                .setId(document.getObjectId("_id").toString())
+                .setContent(document.getString("content"))
+                .build();
+
+    }
+
+    @Override
+    public void updateBlog(UpdateBlogRequest request, StreamObserver<UpdateBlogResponse> responseObserver) {
+        System.out.println("Received Update Blog Request");
+
+        // Get Blog
+        Blog blog = request.getBlog();
+
+        // get Blog Id
+        String blogId = blog.getId();
+
+        Document document = null;
+        System.out.println("Searching for Blog");
+        try {
+            // Find collection: Impliment Filters.eq()
+            document = mongoCollection.find(eq("_id", new ObjectId(blogId)))
+                    .first(); // from the LIST, fetch the first one
+        } catch (Exception e) {
+//            e.printStackTrace();
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription("Blog to be updated is not found for id:" + blogId)
+                    .augmentDescription(e.getLocalizedMessage())
+                    .asRuntimeException());
+        }
+
+        if (document == null) {
+            // Since Doc is not available
+            System.out.println("Blog is not found");
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription("Blog is not found for id:" + blogId)
+                    .asRuntimeException()
+            );
+
+        } else {
+            // If Document is found
+            Document replacementDoc = new Document("authorId", blog.getAuthorId())
+                    .append("title", blog.getTitle())
+                    .append("content", blog.getContent())
+                    .append("_id", new ObjectId(blogId));
+
+            System.out.println("Replacing Blog in dB..");
+            // Replace replacementDoc with old doc
+            mongoCollection.replaceOne(eq("_id", document.getObjectId("_id")), replacementDoc);
+
+            System.out.println("Replaced Blog in DB");
+
+            responseObserver.onNext(UpdateBlogResponse.newBuilder()
+                    .setBlog(documentToBlog(replacementDoc))
+                    .build());
+
+            System.out.println("Server completed Update");
+            responseObserver.onCompleted();
+        }
+
 
     }
 }

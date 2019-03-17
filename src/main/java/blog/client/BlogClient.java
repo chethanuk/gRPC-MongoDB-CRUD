@@ -24,9 +24,9 @@ public class BlogClient {
         BlogServiceGrpc.BlogServiceBlockingStub blogServiceBlockingStub = BlogServiceGrpc.newBlockingStub(channel);
 
         Blog blog = Blog.newBuilder()
-                .setTitle("Blog 2")
+                .setTitle("Blog 3")
                 .setContent("Hello, this is second blog")
-                .setAuthorId("B")
+                .setAuthorId("C")
                 .build();
 
         CreateBlogResponse createBlogResponse = blogServiceBlockingStub.createBlog(CreateBlogRequest.newBuilder()
@@ -35,14 +35,14 @@ public class BlogClient {
 
         System.out.println("Received create Blog Response from Server: " + createBlogResponse.toString());
 
-
-        // Read the Created Blog
-        // Case 1: Reading existing blog
-        ReadBlogResponse readBlogResponse = blogServiceBlockingStub.readBlog(ReadBlogRequest.newBuilder()
-                .setId(createBlogResponse.getBlog().getId())
-                .build());
-
-        System.out.println("Recieved Read Blog Response: " + readBlogResponse.toString());
+//
+//        // Read the Created Blog
+//        // Case 1: Reading existing blog
+//        ReadBlogResponse readBlogResponse = blogServiceBlockingStub.readBlog(ReadBlogRequest.newBuilder()
+//                .setId(createBlogResponse.getBlog().getId())
+//                .build());
+//
+//        System.out.println("Recieved Read Blog Response: " + readBlogResponse.toString());
 
         // Case 2: Reading existing blog: Triggered Error (NOTFOUND)
 //        ReadBlogResponse readBlogResponse1 = blogServiceBlockingStub.readBlog(ReadBlogRequest.newBuilder()
@@ -51,6 +51,22 @@ public class BlogClient {
 //
 //        System.out.println("Recieved Read Blog Response: " + readBlogResponse1.toString());
 
+        // Create new Blog to update
+        Blog newBlog = Blog.newBuilder()
+                .setId(createBlogResponse.getBlog().getId())
+                .setTitle("Blog 3")
+                .setContent("Hello, this is third blog")
+                .setAuthorId("D")
+                .build();
+
+        System.out.println("Updating a blog");
+        UpdateBlogResponse updateBlogResponse =
+                blogServiceBlockingStub.updateBlog(UpdateBlogRequest.newBuilder()
+                        .setBlog(newBlog)
+                        .build());
+//        System.out.println("Recieved response from update Request");
+
+        System.out.println("Recieved Update blog: " + updateBlogResponse.toString());
 
         channel.shutdown();
 
