@@ -78,11 +78,19 @@ public class BlogClient {
         System.out.println("Deleted blog: " + deleteBlogResponse.getBlogId());
 
         // Check if Blog was deleted successfully
-        ReadBlogResponse readBlogResponse1 = blogServiceBlockingStub.readBlog(ReadBlogRequest.newBuilder()
-                .setId(updateBlogResponse.getBlog().getId())
-                .build());
+//        ReadBlogResponse readBlogResponse1 = blogServiceBlockingStub.readBlog(ReadBlogRequest.newBuilder()
+//                .setId(updateBlogResponse.getBlog().getId())
+//                .build());
+//
+//        System.out.println("Recieved Read Blog Response: " + readBlogResponse1.toString());
 
-        System.out.println("Recieved Read Blog Response: " + readBlogResponse1.toString());
+        System.out.println("Requesting List Blog");
+
+        blogServiceBlockingStub.listBlog(ListBlogRequest.newBuilder()
+                .build())
+                // get Each Response and print the blog
+                .forEachRemaining(listBlogResponse -> System.out.println(listBlogResponse.getBlog().toString())
+                );
 
 
         channel.shutdown();
