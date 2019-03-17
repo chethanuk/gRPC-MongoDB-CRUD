@@ -1,13 +1,11 @@
 package blog.client;
 
-import blog.server.BlogServiceImpl;
+import com.proto.blog.Blog;
+import com.proto.blog.BlogServiceGrpc;
+import com.proto.blog.CreateBlogRequest;
+import com.proto.blog.CreateBlogResponse;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
-import io.grpc.protobuf.services.ProtoReflectionService;
-
-import java.io.IOException;
 
 public class BlogClient {
 
@@ -20,9 +18,25 @@ public class BlogClient {
     }
 
     private void run() {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50052)
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051)
                 .usePlaintext()
                 .build();
+
+        System.out.println("Connected to Channel");
+        // Create sync Stub
+        BlogServiceGrpc.BlogServiceBlockingStub blogServiceBlockingStub = BlogServiceGrpc.newBlockingStub(channel);
+
+        Blog blog = Blog.newBuilder()
+                .setTitle("Blog 2")
+                .setContent("Hello, this is second blog")
+                .setAuthorId("B")
+                .build();
+
+        CreateBlogResponse createBlogResponse = blogServiceBlockingStub.createBlog(CreateBlogRequest.newBuilder()
+                .setBlog(blog)
+                .build());
+
+        System.out.println("Received create Blog Response from Server: "+ createBlogResponse.toString());
 
         channel.shutdown();
 

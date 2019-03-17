@@ -14,7 +14,15 @@ message Blog {
 }
 
 
+message CreateBlogRequest {
+    Blog blog = 1;
+}
+
+message CreateBlogResponse {
+    // Will return the id of Blog created in mongoDB
+    Blog blog = 1;
+}
 
 service BlogService {
-
+    rpc CreateBlog(CreateBlogRequest) returns (CreateBlogResponse){};
 }
