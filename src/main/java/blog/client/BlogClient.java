@@ -1,9 +1,6 @@
 package blog.client;
 
-import com.proto.blog.Blog;
-import com.proto.blog.BlogServiceGrpc;
-import com.proto.blog.CreateBlogRequest;
-import com.proto.blog.CreateBlogResponse;
+import com.proto.blog.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
@@ -36,7 +33,24 @@ public class BlogClient {
                 .setBlog(blog)
                 .build());
 
-        System.out.println("Received create Blog Response from Server: "+ createBlogResponse.toString());
+        System.out.println("Received create Blog Response from Server: " + createBlogResponse.toString());
+
+
+        // Read the Created Blog
+        // Case 1: Reading existing blog
+        ReadBlogResponse readBlogResponse = blogServiceBlockingStub.readBlog(ReadBlogRequest.newBuilder()
+                .setId(createBlogResponse.getBlog().getId())
+                .build());
+
+        System.out.println("Recieved Read Blog Response: " + readBlogResponse.toString());
+
+        // Case 2: Reading existing blog: Triggered Error (NOTFOUND)
+//        ReadBlogResponse readBlogResponse1 = blogServiceBlockingStub.readBlog(ReadBlogRequest.newBuilder()
+//                .setId("5c8e8fc75486a17e1b8c57b9")
+//                .build());
+//
+//        System.out.println("Recieved Read Blog Response: " + readBlogResponse1.toString());
+
 
         channel.shutdown();
 
